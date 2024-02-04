@@ -17,4 +17,8 @@ export class MessageListComponent {
   {
     this.messages.push(message)
   }
+  print(data: any)
+  {
+    console.log(data)
+  }
 }
