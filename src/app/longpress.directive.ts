@@ -1,5 +1,5 @@
 import { Directive, EventEmitter, ElementRef, HostListener, Input, Output, OnInit } from "@angular/core";
-import { CmsEvent } from "../shared/cms-event.model";
+import { CmsEvent } from "./shared/cms-event.model";
 
 @Directive({
     selector: '[cmsLongpress]'
