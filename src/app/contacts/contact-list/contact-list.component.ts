@@ -5,21 +5,22 @@ import { ContactService } from '../contact.service';
 @Component({
   selector: 'cms-contact-list',
   templateUrl: './contact-list.component.html',
-  styleUrl: './contact-list.component.css'
+  styleUrl: './contact-list.component.css',
 })
-export class ContactListComponent implements OnInit{
+export class ContactListComponent implements OnInit {
   selectedContact: Contact;
-  contacts: Contact[]
+  contacts: Contact[];
 
-  constructor(private contactService: ContactService){}
+  constructor(private contactService: ContactService) {}
 
-  onSelected(contact: Contact)
-  {
+  onSelected(contact: Contact) {
     this.contactService.contactSelectedEvent.emit(contact);
   }
 
   ngOnInit(): void {
-    this.contacts = this.contactService.getContacts()
+    this.contacts = this.contactService.getContacts();
+    this.contactService.contactChangedEvent.subscribe((contacts) => {
+      this.contacts = contacts;
+    });
   }
-
 }
