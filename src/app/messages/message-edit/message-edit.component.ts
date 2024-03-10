@@ -13,14 +13,14 @@ export class MessageEditComponent {
   @ViewChild("subject") subjectElm: ElementRef
   @ViewChild("msgText") msgTextElm: ElementRef
 
-  currentSender = "0"
+  currentSender = "7"
 
   onSendMessage()
   {
     let subject = this.subjectElm.nativeElement.value
     let msgText = this.msgTextElm.nativeElement.value
     
-    let message = new Message("1",subject,msgText, this.currentSender)
+    let message = new Message(null,subject,msgText, this.currentSender)
     this.messageService.addMessage(message)
     this.onClear()
   }
