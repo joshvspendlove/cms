@@ -5,6 +5,7 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose')
 
 // import the routing file to handle the default (index) route
 var index = require('./server/routes/app');
@@ -43,9 +44,19 @@ app.use(express.static(path.join(__dirname, './dist/cms/browser')));
 
 // Tell express to map the default route ('/') to the index route
 app.use('/', index);
-app.use('/contacts',contactRoutes)
-app.use('/documents',documentRoutes)
-app.use('/messages',messageRoutes)
+app.use('/contacts', contactRoutes)
+app.use('/documents', documentRoutes)
+app.use('/messages', messageRoutes)
+
+mongoose.connect('mongodb://localhost:27017/cms?directConnection=true',
+  { useNewUrlParser: true })
+  .then(() => {
+    console.log('Connected to database!');
+    // Now you can define your Mongoose schemas and models, and perform database operations
+  })
+  .catch((err) => {
+    console.error('Connection failed: ', err);
+  });
 
 // Tell express to map all other non-defined routes back to the index page
 app.get('*', (req, res) => {
@@ -60,6 +71,6 @@ app.set('port', port);
 const server = http.createServer(app);
 
 // Tell the server to start listening on the provided port
-server.listen(port, function() {
+server.listen(port, function () {
   console.log('API running on localhost: ' + port)
 });

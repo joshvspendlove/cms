@@ -1,6 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Message } from './message.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,14 +13,25 @@ export class MessageService {
   
 
   constructor(private http: HttpClient) {
-    this.requestMessages()
+    this.requestMessages().subscribe()
   }
 
   addMessage(message: Message)
   {
-    message.id = `${++this.maxMessageId}`
-    this.messages.push(message)
-    this.storeMessages()
+    message.id = ''
+
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+    this.http.post<{ message: string, msg: Message }>('http://localhost:3000/messages',
+    message,
+    { headers: headers })
+    .subscribe(
+      (responseData) => {
+        // add new message to messages
+        this.messages.push(responseData.msg);
+        this.messageChangedEvent.next(this.messages.slice());
+      }
+    );
   }
 
   getMessages() {
@@ -32,41 +44,21 @@ export class MessageService {
     else return null;
   }
 
-  getMaxId(): number {
-    let maxId = Math.max(...this.messages.map(message => parseInt(message.id, 10)));
-    return maxId
-  }
-
 
   requestMessages() {
     return this.http
-      .get<Message[]>(
-        'https://js-wdd430-cms-default-rtdb.firebaseio.com/messages.json'
+      .get<{msgs:Message[]}>(
+        'http://localhost:3000/messages'
       )
-      .subscribe(
-        (messages: Message[]) => {
-          this.messages = messages
-          this.maxMessageId = this.getMaxId()
+      .pipe(tap(
+        (result: any) => {
+          this.messages = result.msgs
           this.messageChangedEvent.next(this.messages.slice());
         },
         (error: any) => {
           console.error(error);
         }
-      );
+      ));
   }
 
-  storeMessages() {
-    const messageJson = JSON.stringify(this.messages);
-    let header = new HttpHeaders();
-    header.append('Content-Type', 'application/json');
-    this.http
-      .put(
-        'https://js-wdd430-cms-default-rtdb.firebaseio.com/messages.json',
-        messageJson,
-        { headers: header }
-      )
-      .subscribe((response) => {
-        this.messageChangedEvent.next(this.messages.slice())
-      });
-  }
 }
